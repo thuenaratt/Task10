@@ -1,30 +1,17 @@
-#
-# Nginx Dockerfile
-#
-# https://github.com/dockerfile/nginx
-#
+# Use official Nginx image
+FROM nginx:alpine
 
-# Pull base image.
-FROM dockerfile/ubuntu
+# Remove default config (optional)
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Install Nginx.
-RUN \
-  add-apt-repository -y ppa:nginx/stable && \
-  apt-get update && \
-  apt-get install -y nginx && \
-  rm -rf /var/lib/apt/lists/* && \
-  echo "\ndaemon off;" >> /etc/nginx/nginx.conf && \
-  chown -R www-data:www-data /var/lib/nginx
+# Copy your custom Nginx config
+COPY nginx.conf /etc/nginx/conf.d/
 
-# Define mountable directories.
-VOLUME ["/etc/nginx/sites-enabled", "/etc/nginx/certs", "/etc/nginx/conf.d", "/var/log/nginx", "/var/www/html"]
+# Copy static files to Nginx html directory
+COPY ./html /usr/share/nginx/html
 
-# Define working directory.
-WORKDIR /etc/nginx
-
-# Define default command.
-CMD ["nginx"]
-
-# Expose ports.
+# Expose port
 EXPOSE 80
-EXPOSE 443
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
